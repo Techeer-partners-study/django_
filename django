@@ -1,0 +1,32 @@
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Item
+
+@csrf_exempt
+def get_items(request):
+    items = Item.objects.all()
+    data = [{"id": item.id, "name": item.name, "description": item.description} for item in items]
+    return JsonResponse(data, safe=False)
+
+@csrf_exempt
+def create_item(request):
+    name = request.POST.get("name")
+    description = request.POST.get("description")
+    item = Item(name=name, description=description)
+    item.save()
+    return JsonResponse({"id": item.id, "name": item.name, "description": item.description})
+
+@csrf_exempt
+def update_item(request, item_id):
+    item = Item.objects.get(id=item_id)
+    item.name = request.POST.get("name")
+    item.description = request.POST.get("description")
+    item.save()
+    return JsonResponse({"id": item.id, "name": item.name, "description": item.description})
+
+@csrf_exempt
+def delete_item(request, item_id):
+    item = Item.objects.get(id=item_id)
+    item.delete()
+    return JsonResponse({"message": "Item deleted"})
+
